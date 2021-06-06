@@ -1,4 +1,4 @@
-package cn.hellobike.hippo.yapi;
+package cn.hellobike.hippo.exception;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;

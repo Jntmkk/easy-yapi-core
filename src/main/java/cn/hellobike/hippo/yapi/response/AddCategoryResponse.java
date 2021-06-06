@@ -1,6 +1,7 @@
 package cn.hellobike.hippo.yapi.response;
 
 import cn.hellobike.hippo.yapi.entity.AddCategoryResponseEntity;
+import cn.hellobike.hippo.yapi.entity.CategoryEntity;
 import lombok.Data;
 
 /**
@@ -10,5 +11,5 @@ import lombok.Data;
  */
 @Data
 public class AddCategoryResponse extends BaseResponse {
-	private AddCategoryResponseEntity data;
+    private CategoryEntity data;
 }

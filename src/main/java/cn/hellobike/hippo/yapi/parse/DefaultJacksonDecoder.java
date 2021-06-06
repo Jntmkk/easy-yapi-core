@@ -1,10 +1,8 @@
 package cn.hellobike.hippo.yapi.parse;
 
-import cn.hellobike.hippo.yapi.YaPiException;
 import cn.hellobike.hippo.yapi.response.BaseResponse;
 import feign.Response;
 import feign.jackson.JacksonDecoder;
-import lombok.SneakyThrows;
 
 import java.io.IOException;
 import java.lang.reflect.Type;

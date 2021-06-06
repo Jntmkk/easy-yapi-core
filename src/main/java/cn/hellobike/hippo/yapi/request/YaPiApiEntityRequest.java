@@ -1,4 +1,4 @@
-package cn.hellobike.hippo.yapi;
+package cn.hellobike.hippo.yapi.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

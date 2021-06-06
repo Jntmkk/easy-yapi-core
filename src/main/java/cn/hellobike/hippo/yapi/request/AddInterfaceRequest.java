@@ -19,10 +19,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class AddInterfaceRequest {
-	private String catid;
-	private String method;
-	private String path;
-	private String project_id;
-	private String service;
-	private String title = "公共分类";
+    private String catid;
+    private String method;
+    private String path;
+    private String project_id;
+    private String service;
+    private String title;
 }

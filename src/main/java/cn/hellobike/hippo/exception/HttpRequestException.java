@@ -1,4 +1,4 @@
-package cn.hellobike.hippo.yapi;
+package cn.hellobike.hippo.exception;
 
 import lombok.Data;
 
@@ -8,11 +8,11 @@ import lombok.Data;
  * @Description:
  */
 @Data
-public class HttpRquestError extends Exception {
+public class HttpRequestException extends Exception {
 	private String msg;
 	private int code;
 
-	public HttpRquestError(int status, String msgFromHttpResponse) {
+	public HttpRequestException(int status, String msgFromHttpResponse) {
 		this.code = status;
 		this.msg = msgFromHttpResponse;
 	}

@@ -26,6 +26,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 public class UpdateOrCreateRequest {
+	private Integer projectId;
 	private String id;
 	private String title;
 	private String path;

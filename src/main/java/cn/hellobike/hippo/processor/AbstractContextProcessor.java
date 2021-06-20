@@ -9,6 +9,6 @@ import org.apache.velocity.VelocityContext;
  * @Description:
  */
 @Data
-public abstract class AbstractContextProcessor<T extends VelocityContext & BaseContext, V> implements ContextProcessor<T, V> {
-	private ContextProcessor next;
+public abstract class AbstractContextProcessor<T extends BaseContext, V> implements ContextProcessor<T, V> {
+    private ContextProcessor next;
 }

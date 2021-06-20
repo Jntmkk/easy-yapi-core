@@ -1,5 +1,6 @@
 package cn.hellobike.hippo.yapi;
 
+import cn.hellobike.hippo.exception.YaPiException;
 import cn.hellobike.hippo.processor.BaseContext;
 import cn.hellobike.hippo.yapi.entity.GetInterfaceByIdResponseEntity;
 import cn.hellobike.hippo.yapi.parse.DefaultJacksonDecoder;
@@ -14,6 +15,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.victools.jsonschema.generator.*;
 import feign.Feign;
+import feign.RequestInterceptor;
 import feign.jackson.JacksonEncoder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -24,6 +26,8 @@ import org.apache.velocity.app.Velocity;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @Auther: yuewenbo971@hellobike.com
@@ -32,6 +36,12 @@ import java.io.StringWriter;
  */
 @Slf4j
 public class Utils {
+    public static List<RequestInterceptor> interceptors = new LinkedList<>();
+
+    public static void addRequestInterceptor(RequestInterceptor interceptor) {
+        interceptors.add(interceptor);
+    }
+
     public static YaPiSdk getDefaultYaPiSDK(String host, String token) {
         YaPiSdk yaPiSdk = Feign.builder().encoder(new JacksonEncoder()).decoder(new DefaultJacksonDecoder()).requestInterceptor(requestTemplate ->
                 {
@@ -91,7 +101,7 @@ public class Utils {
         }
     }
 
-    public static UpdateOrCreateResponse sendRequest(VelocityContext context, BaseContext baseContext) throws IOException {
+    public static UpdateOrCreateResponse sendRequest(VelocityContext context, BaseContext baseContext) throws Exception {
         UpdateOrCreateRequest request = getRequestFromVelocityTemplate(context);
         return baseContext.getYaPiService().updateOrCreate(request);
     }

@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class CategoryEntity {
 	private int index;
-	private int _id;
+	private Integer _id;
 	private String name;
 	private int project_id;
 	private String desc;

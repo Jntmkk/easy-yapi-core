@@ -192,7 +192,7 @@ public class YaPiServiceImplTest {
     }
 
     @Test
-    public void updateOrCreate() {
+    public void updateOrCreate() throws YaPiException {
         UpdateOrCreateRequest request = UpdateOrCreateRequest.builder()
                 .req_headers(Arrays.asList(ApiRequestHeaderEntity.builder().name("Content-Type").value("application/json").build()))
                 .desc("desc")

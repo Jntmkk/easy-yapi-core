@@ -164,5 +164,5 @@ public interface YaPiService {
      */
     CategoryEntity getCategoryByIdOrDefault(String projectId, String id);
 
-    UpdateOrCreateResponse updateOrCreate(UpdateOrCreateRequest request);
+    UpdateOrCreateResponse updateOrCreate(UpdateOrCreateRequest request) throws Exception;
 }

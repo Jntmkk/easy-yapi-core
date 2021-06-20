@@ -28,6 +28,7 @@ public class YaPiServiceImpl implements YaPiService {
     private String host;
     private String token;
     public YaPiSdk sdk;
+
     public YaPiServiceImpl(String host, String token) {
         this.host = host;
         this.token = token;
@@ -213,7 +214,13 @@ public class YaPiServiceImpl implements YaPiService {
     }
 
     @Override
-    public UpdateOrCreateResponse updateOrCreate(UpdateOrCreateRequest request) {
+    public UpdateOrCreateResponse updateOrCreate(UpdateOrCreateRequest request) throws Exception {
+        if (request.getCatid() == null) {
+            CategoryEntity defaultCategory = getCategoryByTitleOrCreate(request.getProjectId() + "", request.getCatText());
+            if (defaultCategory != null && defaultCategory.get_id() != null) {
+                request.setCatid(defaultCategory.get_id());
+            }
+        }
         return sdk.updateOrCreate(request);
     }
 }

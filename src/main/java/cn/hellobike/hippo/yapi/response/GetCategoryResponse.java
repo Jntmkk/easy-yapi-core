@@ -6,6 +6,6 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class GetCategoryResponse {
+public class GetCategoryResponse extends BaseResponse {
     private List<CategoryEntity> data;
 }

@@ -9,7 +9,7 @@ import org.apache.velocity.VelocityContext;
  * @Date: 2021/6/14 18:17
  * @Description:
  */
-public interface ContextProcessor<T extends VelocityContext & BaseContext, V> extends Order {
+public interface ContextProcessor<T extends BaseContext, V> extends Order {
 	void process(T context, V entity) throws Exception;
 
 	ContextProcessor<T, V> getNext();

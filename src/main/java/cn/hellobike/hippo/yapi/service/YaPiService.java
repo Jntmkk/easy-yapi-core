@@ -1,10 +1,13 @@
 package cn.hellobike.hippo.yapi.service;
 
 import cn.hellobike.hippo.exception.CategoryNotExistException;
+import cn.hellobike.hippo.exception.HttpRequestException;
+import cn.hellobike.hippo.exception.YaPiException;
 import cn.hellobike.hippo.yapi.entity.CategoryEntity;
 import cn.hellobike.hippo.yapi.request.AddCategoryRequest;
 import cn.hellobike.hippo.yapi.request.AddInterfaceRequest;
 import cn.hellobike.hippo.yapi.request.UpdateInterfaceRequest;
+import cn.hellobike.hippo.yapi.request.UpdateOrCreateRequest;
 import cn.hellobike.hippo.yapi.response.*;
 
 /**
@@ -22,7 +25,7 @@ public interface YaPiService {
      * @param request
      * @return
      */
-    AddInterfaceResponse addInterface(AddInterfaceRequest request);
+    AddInterfaceResponse addInterface(AddInterfaceRequest request) throws YaPiException;
 
     /**
      * 根据 ID 获取接口，不存在返回空
@@ -85,11 +88,12 @@ public interface YaPiService {
     /**
      * 根据路径判断接口是否存在
      *
-     * @param path
      * @param projectId
+     * @param path
+     * @param method
      * @return
      */
-    GetAllInterfaceEntity containsInterfaceByPath(String projectId, String path);
+    GetAllInterfaceEntity getInterfaceByPath(String projectId, String path, String method);
 
     /**
      * 获得接口信息，若不存在则创建，若不提供分类则使用公共分类，{@link #DEFAULT_CATEGORY_TITLE}
@@ -97,7 +101,7 @@ public interface YaPiService {
      * @param request
      * @return
      */
-    GetInterfaceByIdResponse getInterfaceOrCreate(AddInterfaceRequest request);
+    GetInterfaceByIdResponse getInterfaceOrCreate(AddInterfaceRequest request) throws YaPiException;
 
     /**
      * 更新接口，若不存在则创建
@@ -105,7 +109,7 @@ public interface YaPiService {
      * @param request
      * @return
      */
-    UpdateInterfaceResponse updateInterfaceOrCreate(UpdateInterfaceRequest request);
+    UpdateInterfaceResponse updateInterfaceOrCreate(UpdateInterfaceRequest request) throws YaPiException;
 
     /**
      * 判断服务是否存在
@@ -131,7 +135,7 @@ public interface YaPiService {
      * @param id
      * @return
      */
-    CategoryEntity getCategoryByTitleOrCreate(String projectId, String id);
+    CategoryEntity getCategoryByTitleOrCreate(String projectId, String id) throws HttpRequestException, Exception;
 
     /**
      * 获得接口根据 path 获得接口信息，不存在则创建
@@ -148,7 +152,7 @@ public interface YaPiService {
      * @return
      * @throws CategoryNotExistException
      */
-    CategoryEntity getDefaultCategory(String projectId);
+    CategoryEntity getDefaultCategory(String projectId) throws YaPiException;
 
 
     /**
@@ -159,4 +163,6 @@ public interface YaPiService {
      * @return
      */
     CategoryEntity getCategoryByIdOrDefault(String projectId, String id);
+
+    UpdateOrCreateResponse updateOrCreate(UpdateOrCreateRequest request);
 }

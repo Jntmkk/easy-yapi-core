@@ -10,10 +10,9 @@ import lombok.NoArgsConstructor;
  * @Date: 2021/5/27 10:06
  * @Description:
  */
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class YaPiException extends Exception {
-	private Integer errcode;
-	private String errmsg;
+
+	public YaPiException(String message) {
+		super(message);
+	}
 }

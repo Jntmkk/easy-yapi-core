@@ -1,0 +1,43 @@
+{
+  "title": "${annotation.title}",
+  "path": "${annotation.path}",
+  "method": "",
+  "req_headers": [
+    {
+      "required": false,
+      "_id": "",
+      "name": "",
+      "value": ""
+    }
+  ],
+  "req_body_type": "",
+  "req_params": [
+    {
+      "name": "",
+      "desc": ""
+    }
+  ],
+  "req_body_form": [
+    {
+      "required": "",
+      "_id": "",
+      "name": "",
+      "type": "",
+      "example": "",
+      "desc": ""
+    }
+  ],
+  "req_body_other": "",
+  "res_body_type": "",
+  "res_body": "",
+  "token": "",
+  "req_query": [
+    ""
+  ],
+  "catid": 0,
+  "status": "",
+  "switch_notice": false,
+  "message": "",
+  "desc": "",
+  "service": ""
+}

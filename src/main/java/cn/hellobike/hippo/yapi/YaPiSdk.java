@@ -3,6 +3,7 @@ package cn.hellobike.hippo.yapi;
 import cn.hellobike.hippo.yapi.request.AddCategoryRequest;
 import cn.hellobike.hippo.yapi.request.AddInterfaceRequest;
 import cn.hellobike.hippo.yapi.request.UpdateInterfaceRequest;
+import cn.hellobike.hippo.yapi.request.UpdateOrCreateRequest;
 import cn.hellobike.hippo.yapi.response.*;
 import feign.Param;
 import feign.RequestLine;
@@ -37,4 +38,6 @@ public interface YaPiSdk {
     @RequestLine("GET /api/interface/list_menu?project_id={projectId}")
     GetCategoryResponse getCategoryList(@Param("projectId") String projectId);
 
+    @RequestLine("POST /api/interface/save")
+    UpdateOrCreateResponse updateOrCreate(UpdateOrCreateRequest request);
 }

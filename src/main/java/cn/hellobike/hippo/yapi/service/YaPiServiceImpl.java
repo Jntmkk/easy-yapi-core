@@ -1,15 +1,18 @@
 package cn.hellobike.hippo.yapi.service;
 
-import cn.hellobike.hippo.exception.CategoryNotExistException;
+import cn.hellobike.hippo.exception.HttpRequestException;
+import cn.hellobike.hippo.exception.YaPiException;
 import cn.hellobike.hippo.yapi.Utils;
 import cn.hellobike.hippo.yapi.YaPiSdk;
 import cn.hellobike.hippo.yapi.entity.CategoryEntity;
 import cn.hellobike.hippo.yapi.request.AddCategoryRequest;
 import cn.hellobike.hippo.yapi.request.AddInterfaceRequest;
 import cn.hellobike.hippo.yapi.request.UpdateInterfaceRequest;
+import cn.hellobike.hippo.yapi.request.UpdateOrCreateRequest;
 import cn.hellobike.hippo.yapi.response.*;
 import cn.hutool.core.collection.CollectionUtil;
 import lombok.Data;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -25,7 +28,6 @@ public class YaPiServiceImpl implements YaPiService {
     private String host;
     private String token;
     public YaPiSdk sdk;
-
     public YaPiServiceImpl(String host, String token) {
         this.host = host;
         this.token = token;
@@ -33,7 +35,7 @@ public class YaPiServiceImpl implements YaPiService {
     }
 
     @Override
-    public AddInterfaceResponse addInterface(AddInterfaceRequest request) {
+    public AddInterfaceResponse addInterface(AddInterfaceRequest request) throws YaPiException {
         if (request.getCatid() == null) {
             CategoryEntity entity = getDefaultCategory(request.getProject_id());
             if (entity != null) {
@@ -98,13 +100,13 @@ public class YaPiServiceImpl implements YaPiService {
     }
 
     @Override
-    public GetAllInterfaceEntity containsInterfaceByPath(String projectId, String path) {
+    public GetAllInterfaceEntity getInterfaceByPath(String projectId, String path, String method) {
         GetAllInterfaceResponse allInterface = sdk.getAllInterface(projectId);
         if (allInterface == null || allInterface.getData() == null || allInterface.getData().getList() == null) {
             return null;
         }
         for (GetAllInterfaceEntity getAllInterfaceEntity : allInterface.getData().getList()) {
-            if (getAllInterfaceEntity.getPath() != null && getAllInterfaceEntity.getPath().equals(path)) {
+            if (getAllInterfaceEntity.getPath() != null && getAllInterfaceEntity.getPath().equals(path) && getAllInterfaceEntity.getMethod().equals(method)) {
                 return getAllInterfaceEntity;
             }
         }
@@ -112,8 +114,8 @@ public class YaPiServiceImpl implements YaPiService {
     }
 
     @Override
-    public GetInterfaceByIdResponse getInterfaceOrCreate(AddInterfaceRequest request) {
-        GetAllInterfaceEntity getAllInterfaceEntity = containsInterfaceByPath(request.getProject_id(), request.getPath());
+    public GetInterfaceByIdResponse getInterfaceOrCreate(AddInterfaceRequest request) throws YaPiException {
+        GetAllInterfaceEntity getAllInterfaceEntity = getInterfaceByPath(request.getProject_id(), request.getPath(), request.getMethod());
         long id = 0;
         if (getAllInterfaceEntity == null) {
             AddInterfaceResponse addInterfaceResponse = addInterface(request);
@@ -132,6 +134,7 @@ public class YaPiServiceImpl implements YaPiService {
      * @return
      */
     @Override
+    @SneakyThrows(YaPiException.class)
     public UpdateInterfaceResponse updateInterfaceOrCreate(UpdateInterfaceRequest request) {
         AddInterfaceRequest addInterfaceRequest = Utils.mapUpdateRequestToAdd(request);
         GetInterfaceByIdResponse interfaceOrCreate = getInterfaceOrCreate(addInterfaceRequest);
@@ -139,6 +142,7 @@ public class YaPiServiceImpl implements YaPiService {
         UpdateInterfaceRequest updateInterfaceRequest = Utils.mapGetResponseToUpdateRequest(interfaceOrCreate.getData());
 
         Utils.updateUpdateRequest(updateInterfaceRequest, request);
+
         return sdk.updateInterface(updateInterfaceRequest);
     }
 
@@ -171,10 +175,20 @@ public class YaPiServiceImpl implements YaPiService {
     }
 
     @Override
-    public CategoryEntity getCategoryByTitleOrCreate(String projectId, String title) {
-        CategoryEntity categoryByTitle = getCategoryByTitle(projectId, title);
+    public CategoryEntity getCategoryByTitleOrCreate(String projectId, String title) throws Exception {
+        CategoryEntity categoryByTitle;
+        if (title == null) {
+            categoryByTitle = getDefaultCategory(projectId);
+        } else {
+            categoryByTitle = getCategoryByTitle(projectId, title);
+
+        }
         if (categoryByTitle == null) {
-            return sdk.addCategory(AddCategoryRequest.builder().name(title).project_id(projectId).build()).getData();
+            AddCategoryResponse response = sdk.addCategory(AddCategoryRequest.builder().name(title).project_id(projectId).build());
+            if (response.getErrcode() != 0) {
+                throw new HttpRequestException(response.getErrcode(), response.getErrmsg());
+            }
+            return response.getData();
         }
         return categoryByTitle;
     }
@@ -185,13 +199,21 @@ public class YaPiServiceImpl implements YaPiService {
     }
 
     @Override
-    public CategoryEntity getDefaultCategory(String projectId) {
+    public CategoryEntity getDefaultCategory(String projectId) throws YaPiException {
         CategoryEntity categoryByTitle = getCategoryByTitle(projectId, YaPiService.DEFAULT_CATEGORY_TITLE);
+        if (categoryByTitle == null) {
+            throw new YaPiException("默认分类[公共分类]不存在");
+        }
         return categoryByTitle;
     }
 
     @Override
     public GetCategoryResponse getAllCategory(String projectId) {
         return sdk.getCategoryList(projectId);
+    }
+
+    @Override
+    public UpdateOrCreateResponse updateOrCreate(UpdateOrCreateRequest request) {
+        return sdk.updateOrCreate(request);
     }
 }

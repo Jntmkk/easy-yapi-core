@@ -13,6 +13,7 @@ public class HttpRequestException extends Exception {
 	private int code;
 
 	public HttpRequestException(int status, String msgFromHttpResponse) {
+		super(msgFromHttpResponse);
 		this.code = status;
 		this.msg = msgFromHttpResponse;
 	}

@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class ApiRequestHeaderEntity {
-	private String required;
+	private Boolean required;
 	private String _id;
 	private String name;
 	private String value;

@@ -1,7 +1,10 @@
 package cn.hellobike.hippo.yapi;
 
+import cn.hellobike.hippo.VelocityUtils;
+import cn.hellobike.hippo.annotation.YaPiApiEntity;
 import cn.hellobike.hippo.asm.AsmUtils;
 import cn.hellobike.hippo.test.User;
+import cn.hellobike.hippo.yapi.entity.ApiRequestHeaderEntity;
 import cn.hellobike.hippo.yapi.entity.CategoryEntity;
 import cn.hellobike.hippo.yapi.request.AddCategoryRequest;
 import cn.hellobike.hippo.yapi.request.AddInterfaceRequest;
@@ -15,12 +18,19 @@ import cn.hellobike.hippo.yapi.service.YaPiServiceImpl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import com.alibaba.fastjson.JSONObject;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.Velocity;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.lang.reflect.AnnotatedArrayType;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.util.LinkedList;
+import java.util.List;
 
 @Slf4j
 public class UtilsTest {
@@ -84,5 +94,31 @@ public class UtilsTest {
 		System.out.println(cur);
 
 
+	}
+
+	@Test
+	public void testVec() throws IOException {
+		Velocity.init();
+		VelocityContext context = new VelocityContext();
+		YaPiApiEntity entity = YaPiApiEntity.builder()
+				.desc("desc")
+				.method("POST")
+//				.title("title")
+//				.path("/path")
+				.build();
+		context.put("annotation", entity);
+//		context.put("comment", "comment");
+		context.put("VelocityUtils", VelocityUtils.class);
+		List<ApiRequestHeaderEntity> requestHeaderEntities = new LinkedList<>();
+		requestHeaderEntities.add(ApiRequestHeaderEntity.builder().name("Content-Type").value("application/json").build());
+		context.put("req_headers", requestHeaderEntities);
+		StringWriter writer = new StringWriter();
+		InputStream inputStream = getClass().getClassLoader().getResourceAsStream("request.json");
+		String s = IOUtils.toString(inputStream, "utf8");
+		JSONObject jsonObject1 = JSONObject.parseObject(s);
+		System.out.println(jsonObject1);
+		Velocity.evaluate(context, writer, "my", s);
+		JSONObject jsonObject = JSONObject.parseObject(writer.toString());
+		System.out.println(jsonObject.toJSONString());
 	}
 }

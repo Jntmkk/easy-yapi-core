@@ -1,14 +1,19 @@
 package cn.hellobike.hippo.yapi.service;
 
+import cn.hellobike.hippo.exception.YaPiException;
 import cn.hellobike.hippo.yapi.Utils;
+import cn.hellobike.hippo.yapi.entity.ApiRequestHeaderEntity;
 import cn.hellobike.hippo.yapi.entity.CategoryEntity;
 import cn.hellobike.hippo.yapi.request.AddCategoryRequest;
 import cn.hellobike.hippo.yapi.request.AddInterfaceRequest;
 import cn.hellobike.hippo.yapi.request.UpdateInterfaceRequest;
+import cn.hellobike.hippo.yapi.request.UpdateOrCreateRequest;
 import cn.hellobike.hippo.yapi.response.*;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Random;
 
 import static org.assertj.core.api.Assertions.*;
@@ -45,7 +50,7 @@ public class YaPiServiceImplTest {
     }
 
     @Test
-    public void addInterface() {
+    public void addInterface() throws YaPiException {
         AddInterfaceResponse addInterfaceResponse = generateInterface();
         System.out.println(addInterfaceResponse.getErrmsg());
         assertThat(addInterfaceResponse.getData()).isNotNull();
@@ -55,7 +60,7 @@ public class YaPiServiceImplTest {
         assertThat(interfaceById.getErrcode() == 0).isTrue();
     }
 
-    public static AddInterfaceResponse generateInterface() {
+    public static AddInterfaceResponse generateInterface() throws YaPiException {
         AddCategoryResponse response = generateCat();
         log.info(response.getErrmsg());
         assertThat(response.getData()).isNotNull();
@@ -139,18 +144,18 @@ public class YaPiServiceImplTest {
     }
 
     @Test
-    public void containsInterfaceByPath() {
+    public void containsInterfaceByPath() throws YaPiException {
         AddInterfaceResponse addInterfaceResponse = generateInterface();
-        GetAllInterfaceEntity getAllInterfaceEntity = SERVICE.containsInterfaceByPath(PROJECT_ID, addInterfaceResponse.getData().getPath());
+        GetAllInterfaceEntity getAllInterfaceEntity = SERVICE.getInterfaceByPath(PROJECT_ID, addInterfaceResponse.getData().getPath(), "POST");
         assertThat(getAllInterfaceEntity).isNotNull();
 
-        GetAllInterfaceEntity getAllInterfaceEntity1 = SERVICE.containsInterfaceByPath(PROJECT_ID, nextNotExistPath());
+        GetAllInterfaceEntity getAllInterfaceEntity1 = SERVICE.getInterfaceByPath(PROJECT_ID, nextNotExistPath(), "POST");
         assertThat(getAllInterfaceEntity1).isNull();
     }
 
 
     @Test
-    public void getInterfaceOrCreate() {
+    public void getInterfaceOrCreate() throws YaPiException {
         AddInterfaceResponse addInterfaceResponse = generateInterface();
         assertThat(addInterfaceResponse.getData()).isNotNull();
         AddInterfaceRequest build = AddInterfaceRequest.builder()
@@ -168,7 +173,7 @@ public class YaPiServiceImplTest {
     }
 
     @Test
-    public void updateInterfaceOrCreate() {
+    public void updateInterfaceOrCreate() throws YaPiException {
         AddInterfaceResponse addInterfaceResponse = generateInterface();
         GetInterfaceByIdResponse interfaceById = SERVICE.getInterfaceById(String.valueOf(addInterfaceResponse.getData().get_id()));
         UpdateInterfaceRequest updateInterfaceRequest = Utils.mapGetResponseToUpdateRequest(interfaceById.getData());
@@ -184,5 +189,30 @@ public class YaPiServiceImplTest {
         assertThat(interfaceById1.getData()).isNotNull();
         assertThat(interfaceById1.getData().getRes_body()).isNotNull();
         assertThat(interfaceById1.getData().getRes_body().equals(res_body));
+    }
+
+    @Test
+    public void updateOrCreate() {
+        UpdateOrCreateRequest request = UpdateOrCreateRequest.builder()
+                .req_headers(Arrays.asList(ApiRequestHeaderEntity.builder().name("Content-Type").value("application/json").build()))
+                .desc("desc")
+                .message("message")
+                .method("POST")
+                .catid(15)
+                .req_body_form(Collections.emptyList())
+                .service("App")
+                .switch_notice(true)
+                .id("11")
+                .req_body_type("json")
+                .title("title")
+                .req_body_other("{}")
+                .res_body("{}")
+                .res_body_type("json")
+                .token("0ad3d038a1efed2f14c99a25dfa86c77c7e8b6bf2f5044d325ac77ed98bb92ec")
+                .path("/path")
+                .status("done")
+                .build();
+        UpdateOrCreateResponse updateOrCreateResponse = SERVICE.updateOrCreate(request);
+        System.out.println(updateOrCreateResponse.getErrmsg());
     }
 }

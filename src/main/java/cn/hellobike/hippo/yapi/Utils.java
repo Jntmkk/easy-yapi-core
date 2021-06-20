@@ -1,9 +1,12 @@
 package cn.hellobike.hippo.yapi;
 
+import cn.hellobike.hippo.processor.BaseContext;
 import cn.hellobike.hippo.yapi.entity.GetInterfaceByIdResponseEntity;
 import cn.hellobike.hippo.yapi.parse.DefaultJacksonDecoder;
 import cn.hellobike.hippo.yapi.request.AddInterfaceRequest;
 import cn.hellobike.hippo.yapi.request.UpdateInterfaceRequest;
+import cn.hellobike.hippo.yapi.request.UpdateOrCreateRequest;
+import cn.hellobike.hippo.yapi.response.UpdateOrCreateResponse;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import com.alibaba.fastjson.JSONObject;
@@ -13,6 +16,14 @@ import com.github.victools.jsonschema.generator.*;
 import feign.Feign;
 import feign.jackson.JacksonEncoder;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.Velocity;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
 
 /**
  * @Auther: yuewenbo971@hellobike.com
@@ -33,21 +44,7 @@ public class Utils {
     }
 
     public static String getModifyDescription(String before, String current) throws JsonProcessingException {
-//		ObjectMapper mapper = new ObjectMapper();
-//		TypeReference<HashMap<String, Object>> type =
-//				new TypeReference<HashMap<String, Object>>() {
-//				};
-//		Map<String, Object> leftMap = mapper.readValue(before, type);
-//		Map<String, Object> rightMap = mapper.readValue(current, type);
-//		Map<String, Object> leftFlatMap = FlatMapUtils.flatten(leftMap);
-//		Map<String, Object> rightFlatMap = FlatMapUtils.flatten(rightMap);
-//
-//		MapDifference<String, Object> difference = Maps.difference(leftFlatMap, rightFlatMap);
         StringBuilder builder = new StringBuilder();
-//		difference.entriesDiffering().forEach((k, v) -> builder.append(k + "--" + v + ","));
-//		if (builder.length() > 0) {
-//			builder.deleteCharAt(builder.length() - 1);
-//		}
         return builder.toString();
     }
 
@@ -92,5 +89,21 @@ public class Utils {
         if (cur.getReq_query() != null) {
             before.setReq_query(cur.getReq_query());
         }
+    }
+
+    public static UpdateOrCreateResponse sendRequest(VelocityContext context, BaseContext baseContext) throws IOException {
+        UpdateOrCreateRequest request = getRequestFromVelocityTemplate(context);
+        return baseContext.getYaPiService().updateOrCreate(request);
+    }
+
+    public static UpdateOrCreateRequest getRequestFromVelocityTemplate(VelocityContext context) throws IOException {
+        Velocity.init();
+        InputStream resourceAsStream = Utils.class.getClass().getClassLoader().getResourceAsStream("request.json");
+        String template = IOUtils.toString(resourceAsStream, "utf8");
+        StringWriter writer = new StringWriter();
+        Velocity.evaluate(context, writer, "tag", template);
+        String target = writer.toString();
+        UpdateOrCreateRequest updateOrCreateRequest = JSONObject.parseObject(target, UpdateOrCreateRequest.class);
+        return updateOrCreateRequest;
     }
 }
